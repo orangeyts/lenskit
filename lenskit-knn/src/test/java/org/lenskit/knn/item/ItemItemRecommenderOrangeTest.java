@@ -53,46 +53,29 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.*;
 
-public class ItemItemRecommenderTest {
+public class ItemItemRecommenderOrangeTest {
 
     private DataAccessObject data;
     private LenskitConfiguration config;
     private LenskitRecommender session;
     private ItemRecommender recommender;
 
-
-    /**
-     * 用户评分排列
-     *
-     * u1-6,7,8,9
-     * u2-6,7,8
-     * u3-  7,8,9
-     *
-     * @throws RecommenderBuildException
-     */
     @SuppressWarnings("deprecation")
     @Before
     public void setup() throws RecommenderBuildException {
         List<Rating> rs = new ArrayList<>();
-        rs.add(Rating.create(1, 6, 4));
-        rs.add(Rating.create(1, 7, 3));
-        rs.add(Rating.create(1, 8, 3));
-        rs.add(Rating.create(1, 9, 3));
+        rs.add(Rating.create(1, 1, 2));
+        rs.add(Rating.create(1, 2, 2));
+        rs.add(Rating.create(1, 3, 2));
+        rs.add(Rating.create(1, 4, 2));//用户1 单独喜欢了 item4
 
-        rs.add(Rating.create(2, 6, 2));
-        rs.add(Rating.create(2, 7, 2));
-        rs.add(Rating.create(2, 8, 4));
+        rs.add(Rating.create(2, 1, 2));
+        rs.add(Rating.create(2, 2, 2));
+        rs.add(Rating.create(2, 3, 2));
 
-        rs.add(Rating.create(3, 7, 5));
-        rs.add(Rating.create(3, 8, 3));
-        rs.add(Rating.create(3, 9, 4));
-
-        rs.add(Rating.create(4, 7, 2));
-        rs.add(Rating.create(4, 8, 2));
-
-        rs.add(Rating.create(5, 8, 3));
-
-        rs.add(Rating.create(6, 8, 2));
+        rs.add(Rating.create(3, 1, 2));
+        rs.add(Rating.create(3, 2, 2));
+        rs.add(Rating.create(3, 3, 2));
         data = StaticDataSource.fromList(rs).get();
         config = new LenskitConfiguration();
         config.bind(ItemScorer.class).to(ItemItemScorer.class);
@@ -115,9 +98,6 @@ public class ItemItemRecommenderTest {
      * Check that we score items but do not provide scores for items
      * the user has previously rated.  User 5 has rated only item 8
      * previously.
-     *
-     * 获取用户之前没有的评分项,用户5仅仅给8评分了,这里入参是 7,8
-     * 那么没有评分的就是7
      */
     @Test
     public void testItemScorerNoRating() {
@@ -151,8 +131,6 @@ public class ItemItemRecommenderTest {
         long[] items2 = {7, 8, 9};
         scorer = session.get(ItemItemScorer.class);
         assertThat(scorer, notNullValue());
-        //对于输入的 项目 按照计算的预测评分排序 ，用户2 -6-2,7-2,8-4  对于输入的交集是7,8,那么，8应该排在第一，其次是7，然后是9
-        //实际的确实 7,8,9  user-2投票item-8的是4，user-2投票item-7的是2，现在不知道Rating的是4是最喜欢，还是2是最喜欢
         ResultMap details = scorer.scoreWithDetails(2, LongArrayList.wrap(items2));
         Result r = details.get(9);
         assertThat(r, notNullValue());

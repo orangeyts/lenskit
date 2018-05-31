@@ -37,6 +37,7 @@ import java.util.List;
  * scoring of one or more items.
  *
  * Accumulating results here allows us to avoid memory allocations when detailed results are not required.
+ * 当结果逐渐增加的时候避免内存分配过多(当不需要详细结果的时候)
  */
 public abstract class ItemItemScoreAccumulator {
     private ItemItemScoreAccumulator() {}
